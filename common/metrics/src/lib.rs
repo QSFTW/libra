@@ -59,7 +59,7 @@ pub use op_counters::{DurationHistogram, OpMetrics};
 mod unit_tests;
 
 // Re-export counter types from prometheus crate
-pub use prometheus::{
+pub use libra_metrics_core::{
     register_histogram, register_histogram_vec, register_int_counter, register_int_counter_vec,
     register_int_gauge, register_int_gauge_vec, Histogram, HistogramVec, IntCounter, IntCounterVec,
     IntGauge, IntGaugeVec,
@@ -91,7 +91,7 @@ fn get_metrics_file<P: AsRef<Path>>(dir_path: &P, file_name: &str) -> File {
 }
 
 fn get_all_metrics_as_serialized_string() -> Result<Vec<u8>> {
-    let all_metrics = prometheus::gather();
+    let all_metrics = libra_metrics_core::gather();
 
     let encoder = TextEncoder::new();
     let mut buffer = Vec::new();
@@ -102,7 +102,7 @@ fn get_all_metrics_as_serialized_string() -> Result<Vec<u8>> {
 pub fn get_all_metrics() -> HashMap<String, String> {
     // TODO: use an existing metric encoder (same as used by
     // prometheus/metric-server)
-    let all_metric_families = prometheus::gather();
+    let all_metric_families = libra_metrics_core::gather();
     let mut all_metrics = HashMap::new();
     for metric_family in all_metric_families {
         let values: Vec<_> = match metric_family.get_field_type() {
