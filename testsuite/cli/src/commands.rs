@@ -5,6 +5,8 @@ use crate::{
     account_commands::AccountCommand, client_proxy::ClientProxy, counters::COUNTER_CLIENT_ERRORS,
     dev_commands::DevCommand, info_commands::InfoCommand, query_commands::QueryCommand,
     transfer_commands::TransferCommand,
+    whoami_commands::WhoamiCommand,
+    multi_transfer_commands::MultiTransferCommand,
 };
 use anyhow::Error;
 use libra_types::{account_address::AccountAddress, transaction::authenticator::AuthenticationKey};
@@ -49,6 +51,8 @@ pub fn get_commands(
         Arc::new(QueryCommand {}),
         Arc::new(TransferCommand {}),
         Arc::new(InfoCommand {}),
+        Arc::new(WhoamiCommand {}),
+        Arc::new(MultiTransferCommand {}),
     ];
     if include_dev {
         commands.push(Arc::new(DevCommand {}));
