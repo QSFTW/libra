@@ -13,7 +13,7 @@ impl Command for MultiTransferCommand {
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
         let is_blocking = blocking_cmd(&params[0]);
-        let num_iter: i32 = params[4].parse().unwrap()+1;
+        let num_iter: i32 = params[4].parse().unwrap();
         if is_blocking {
             for i in 1..num_iter{
                 println!("Timestamp: {:?}", SystemTime::now().duration_since(SystemTime::UNIX_EPOCH));
