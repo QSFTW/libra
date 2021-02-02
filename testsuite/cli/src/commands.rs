@@ -7,6 +7,7 @@ use crate::{
     transfer_commands::TransferCommand,
     whoami_commands::WhoamiCommand,
     multi_transfer_commands::MultiTransferCommand,
+    sequence_query_commands::SequenceQueryCommand,
 };
 use anyhow::Error;
 use libra_types::{account_address::AccountAddress, transaction::authenticator::AuthenticationKey};
@@ -53,6 +54,7 @@ pub fn get_commands(
         Arc::new(InfoCommand {}),
         Arc::new(WhoamiCommand {}),
         Arc::new(MultiTransferCommand {}),
+        Arc::new(SequenceQueryCommand {}),
     ];
     if include_dev {
         commands.push(Arc::new(DevCommand {}));

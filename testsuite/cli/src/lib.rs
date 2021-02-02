@@ -31,6 +31,7 @@ mod query_commands;
 mod transfer_commands;
 pub(crate) mod whoami_commands;
 pub(crate) mod multi_transfer_commands;
+pub(crate) mod sequence_query_commands;
 
 /// Struct used to store data for each created account.  We track the sequence number
 /// so we can create new transactions easily
