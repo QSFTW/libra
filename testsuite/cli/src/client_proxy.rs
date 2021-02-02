@@ -980,7 +980,7 @@ impl ClientProxy {
         &mut self,
         space_delim_strings: &[&str],
         program: TransactionPayload,
-    ) {
+    ) -> Result<()> {
         let (sender_address, _) =
             self.get_account_address_from_parameter(space_delim_strings[1])?;
         let sender_ref_id = self.get_account_ref_id(&sender_address)?;
@@ -990,7 +990,7 @@ impl ClientProxy {
         let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
 
         self.client
-            .submit_transaction(self.accounts.get_mut(sender_ref_id), txn);
+            .submit_transaction(self.accounts.get_mut(sender_ref_id), txn)
     }
 
     /// Publish Move module
@@ -1025,9 +1025,13 @@ impl ClientProxy {
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
         )
     }
-    // same as above but does not wait for completion
-    pub fn execute_script_non_blocking(&mut self, space_delim_strings: &[&str]){
-        space_delim_strings[0] = "execute";
+
+    /// same as above but does not wait for completion
+    pub fn execute_script_non_blocking
+        (
+            &mut self, 
+            space_delim_strings: &[&str]
+        )-> Result<()> {
         let script_bytes = fs::read(space_delim_strings[2])?;
         let arguments: Vec<_> = space_delim_strings[3..]
             .iter()
