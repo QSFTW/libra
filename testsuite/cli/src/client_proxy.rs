@@ -982,12 +982,12 @@ impl ClientProxy {
         program: TransactionPayload,
     ) {
         let (sender_address, _) =
-            self.get_account_address_from_parameter(space_delim_strings[1]);
-        let sender_ref_id = self.get_account_ref_id(&sender_address);
+            self.get_account_address_from_parameter(space_delim_strings[1])?;
+        let sender_ref_id = self.get_account_ref_id(&sender_address)?;
         let sender = self.accounts.get(sender_ref_id).unwrap();
         let sequence_number = sender.sequence_number;
 
-        let txn = self.create_txn_to_submit(program, &sender, None, None, None);
+        let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
 
         self.client
             .submit_transaction(self.accounts.get_mut(sender_ref_id), txn);
@@ -1028,7 +1028,7 @@ impl ClientProxy {
     // same as above but does not wait for completion
     pub fn execute_script_non_blocking(&mut self, space_delim_strings: &[&str]){
         space_delim_strings[0] = "execute";
-        let script_bytes = fs::read(space_delim_strings[2]);
+        let script_bytes = fs::read(space_delim_strings[2])?;
         let arguments: Vec<_> = space_delim_strings[3..]
             .iter()
             .filter_map(|arg| parse_transaction_argument_for_client(arg).ok())
