@@ -7,6 +7,7 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use libra_types::waypoint::Waypoint;
+use::std::thread;
 use std::time::{Duration, UNIX_EPOCH};
 
 /// Major command for account related operations.
@@ -294,6 +295,9 @@ impl Command for DevCommandExecuteMultiple {
     }
 
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        client.execute_script_non_blocking(params);
+        loop{
+            client.execute_script_non_blocking(params);
+            thread::sleep(Duration::from_millis(10));
+        }
     }
 }
