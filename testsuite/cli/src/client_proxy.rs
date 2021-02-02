@@ -975,6 +975,24 @@ impl ClientProxy {
         self.wait_for_transaction(sender_address, sequence_number + 1)
     }
 
+    // same as above but does not wait for transaction to complete
+    fn submit_program_non_blocking(
+        &mut self,
+        space_delim_strings: &[&str],
+        program: TransactionPayload,
+    ) {
+        let (sender_address, _) =
+            self.get_account_address_from_parameter(space_delim_strings[1])?;
+        let sender_ref_id = self.get_account_ref_id(&sender_address)?;
+        let sender = self.accounts.get(sender_ref_id).unwrap();
+        let sequence_number = sender.sequence_number;
+
+        let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
+
+        self.client
+            .submit_transaction(self.accounts.get_mut(sender_ref_id), txn)?;
+    }
+
     /// Publish Move module
     pub fn publish_module(&mut self, space_delim_strings: &[&str]) -> Result<()> {
         ensure!(
@@ -1003,6 +1021,20 @@ impl ClientProxy {
             .collect();
         // TODO: support type arguments in the client.
         self.submit_program(
+            space_delim_strings,
+            TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
+        )
+    }
+    // same as above but does not wait for completion
+    pub fn execute_script_non_blocking(&mut self, space_delim_strings: &[&str]){
+        space_delim_strings[0] = "execute";
+        let script_bytes = fs::read(space_delim_strings[2])?;
+        let arguments: Vec<_> = space_delim_strings[3..]
+            .iter()
+            .filter_map(|arg| parse_transaction_argument_for_client(arg).ok())
+            .collect();
+        // TODO: support type arguments in the client.
+        self.submit_program_non_blocking(
             space_delim_strings,
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
         )

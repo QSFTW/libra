@@ -27,6 +27,8 @@ impl Command for DevCommand {
             Box::new(DevCommandUpgradeStdlib {}),
             Box::new(DevCommandGenWaypoint {}),
             Box::new(DevCommandChangeLibraVersion {}),
+            Box::new(DevCommandEnableCustomScript {}),
+            Box::new(DevCommandExecuteMultiple {}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -273,5 +275,25 @@ impl Command for DevCommandGenWaypoint {
                 waypoint
             ),
         }
+    }
+}
+
+pub struct DevCommandExecuteMultiple {}
+
+impl Command for DevCommandExecuteMultiple {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["execute-multiple"]
+    }
+
+    fn get_params_help(&self) -> &'static str {
+        "execute script in repeatedly"
+    }
+
+    fn get_description(&self) -> &'static str {
+        "Generate a waypoint for the latest epoch change LedgerInfo"
+    }
+
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        client.execute_script_non_blocking(params);
     }
 }
