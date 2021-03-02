@@ -16,6 +16,7 @@ use rustyline::{config::CompletionType, error::ReadlineError, Config, Editor};
 use std::{
     str::FromStr,
     time::{Duration, UNIX_EPOCH},
+    sync::Arc,
 };
 use structopt::StructOpt;
 
@@ -79,25 +80,6 @@ struct Args {
 }
 
 fn main() {
-    // SETUP TCP server
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    listener.set_nonblocking(true).expect("Cannot set non-blocking");
-    for stream in listener.incoming() {
-        match stream {
-            Ok(s) => {
-                // do something with the TcpStream
-                handle_connection(s);
-            }
-            Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
-                // wait until network socket is ready, typically implemented
-                // via platform-specific APIs such as epoll or IOCP
-                // wait_for_fd();
-                continue;
-            }
-            Err(e) => panic!("encountered IO error: {}", e),
-        } 
-    }
-
     let args = Args::from_args();
 
     let mut logger = ::libra_logger::Logger::new();
@@ -175,31 +157,45 @@ fn main() {
             Err(e) => report_error("Error recovering Libra wallet", e),
         }
     }
+
+    // SETUP TCP server
+    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    listener.set_nonblocking(true).expect("Cannot set non-blocking");
+    for stream in listener.incoming() {
+        match stream {
+            Ok(s) => {
+                // do something with the TcpStream
+                handle_connection(s);
+            }
+            Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+                // wait until network socket is ready, typically implemented
+                // via platform-specific APIs such as epoll or IOCP
+                // wait_for_fd();
+                continue;
+            }
+            Err(e) => panic!("encountered IO error: {}", e),
+        } 
+    }
 }
 
-fn handle_connection(mut stream: TcpStream) {   
+fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn Command> alias_to_cmd) {   
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
-    let readline = String::from_utf8_lossy(&buffer[..])
+    let readline = String::from_utf8_lossy(&buffer[..]);
     match readline {
         Ok(line) => {
             let params = parse_cmd(&line);
-            if params.is_empty() {
-                continue;
-            }
-            match alias_to_cmd.get(&params[0]) {
-                Some(cmd) => {
-                    if args.verbose {
-                        println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
+            if !params.is_empty() {
+                match alias_to_cmd.get(&params[0]) {
+                    Some(cmd) => {
+                        if args.verbose {
+                            println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
+                        }
+                        cmd.execute(&mut client_proxy, &params);
                     }
-                    cmd.execute(&mut client_proxy, &params);
-                }
-                None => match params[0] {
-                    "quit" | "q!" => break,
-                    "help" | "h" => print_help(&cli_info, &commands),
-                    "" => continue,
-                    x => println!("Unknown command: {:?}", x),
-                },
+                    None => match params[0] {
+                        x => println!("Unknown command: {:?}", x),
+                    },
             }
         }
     }
