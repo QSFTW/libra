@@ -178,7 +178,8 @@ fn main() {
     }
 }
 
-fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn Command> alias_to_cmd) {   
+fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn Command> alias_to_cmd, mut ClientProxy client_proxy) {
+    let args = Args::from_args();
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
     let line = String::from_utf8_lossy(&buffer[..]);
