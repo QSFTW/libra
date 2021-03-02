@@ -160,7 +160,7 @@ fn main() {
     }
 
     // SETUP TCP server
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+    let listener = TcpListener::bind("0.0.0.0:7878").unwrap();
     listener.set_nonblocking(true).expect("Cannot set non-blocking");
     for stream in listener.incoming() {
         match stream {
@@ -182,8 +182,8 @@ fn main() {
 fn handle_connection(mut stream: TcpStream, commands: &Vec<Arc<dyn Command>>, alias_to_cmd: &HashMap<&'static str, Arc<dyn Command>>, client_proxy: &mut ClientProxy) {
     let args = Args::from_args();
     let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
-    let line = String::from_utf8_lossy(&buffer[..]);
+    let n =stream.read(&mut buffer).unwrap();
+    let line = format!("{}",String::from_utf8_lossy(&buffer[..n]).trim());
     let params = parse_cmd(&line);
     if !params.is_empty() {
         match alias_to_cmd.get(&params[0]) {
