@@ -8,8 +8,11 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4.15"
+hex = "0.4.2"
 rustyline = "6.3.0"
 structopt = "0.3.17"
 
+crash-handler = { path = "../../common/crash-handler", version = "0.1.0" }
+libra-logger =  { path = "../../common/logger", version = "0.1.0" }
 libra-types = { path = "../../types", version = "0.1.0" }
 cli = {path = "../cli", version = "0.1.0"}

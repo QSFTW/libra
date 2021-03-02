@@ -183,29 +183,40 @@ fn handle_connection(mut stream: TcpStream) {
     let readline = String::from_utf8_lossy(&buffer[..])
     match readline {
         Ok(line) => {
-            Ok(line) => {
-                let params = parse_cmd(&line);
-                if params.is_empty() {
-                    continue;
-                }
-                match alias_to_cmd.get(&params[0]) {
-                    Some(cmd) => {
-                        if args.verbose {
-                            println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
-                        }
-                        cmd.execute(&mut client_proxy, &params);
+            let params = parse_cmd(&line);
+            if params.is_empty() {
+                continue;
+            }
+            match alias_to_cmd.get(&params[0]) {
+                Some(cmd) => {
+                    if args.verbose {
+                        println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
                     }
-                    None => match params[0] {
-                        "quit" | "q!" => break,
-                        "help" | "h" => print_help(&cli_info, &commands),
-                        "" => continue,
-                        x => println!("Unknown command: {:?}", x),
-                    },
+                    cmd.execute(&mut client_proxy, &params);
                 }
+                None => match params[0] {
+                    "quit" | "q!" => break,
+                    "help" | "h" => print_help(&cli_info, &commands),
+                    "" => continue,
+                    x => println!("Unknown command: {:?}", x),
+                },
+            }
         }
     }
     // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
     let response = "HTTP/1.1 200 OK\r\n\r\n";
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
+}
+
+/// Retrieve a waypoint given the URL.
+fn retrieve_waypoint(url_str: &str) -> anyhow::Result<Waypoint> {
+    let client = reqwest::blocking::ClientBuilder::new().build()?;
+    let response = client.get(url_str).send()?;
+
+    Ok(response
+        .error_for_status()
+        .map_err(|_| anyhow::format_err!("Failed to retrieve waypoint from URL {}", url_str))?
+        .text()
+        .map(|r| Waypoint::from_str(r.trim()))??)
 }
