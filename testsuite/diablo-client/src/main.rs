@@ -165,7 +165,7 @@ fn main() {
         match stream {
             Ok(s) => {
                 // do something with the TcpStream
-                handle_connection(s);
+                handle_connection(s, commands, alias_to_cmd);
             }
             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
                 // wait until network socket is ready, typically implemented
@@ -181,22 +181,19 @@ fn main() {
 fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn Command> alias_to_cmd) {   
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
-    let readline = String::from_utf8_lossy(&buffer[..]);
-    match readline {
-        Ok(line) => {
-            let params = parse_cmd(&line);
-            if !params.is_empty() {
-                match alias_to_cmd.get(&params[0]) {
-                    Some(cmd) => {
-                        if args.verbose {
-                            println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
-                        }
-                        cmd.execute(&mut client_proxy, &params);
-                    }
-                    None => match params[0] {
-                        x => println!("Unknown command: {:?}", x),
-                    },
+    let line = String::from_utf8_lossy(&buffer[..]);
+    let params = parse_cmd(&line);
+    if !params.is_empty() {
+        match alias_to_cmd.get(&params[0]) {
+            Some(cmd) => {
+                if args.verbose {
+                    println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
+                }
+                cmd.execute(&mut client_proxy, &params);
             }
+            None => match params[0] {
+                x => println!("Unknown command: {:?}", x),
+            },
         }
     }
     // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
