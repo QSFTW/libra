@@ -17,6 +17,7 @@ use std::{
     str::FromStr,
     time::{Duration, UNIX_EPOCH},
     sync::Arc,
+    collections::HashMap,
 };
 use structopt::StructOpt;
 
@@ -165,7 +166,7 @@ fn main() {
         match stream {
             Ok(s) => {
                 // do something with the TcpStream
-                handle_connection(s, commands, alias_to_cmd);
+                handle_connection(s, &commands,&alias_to_cmd, &mut client_proxy);
             }
             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
                 // wait until network socket is ready, typically implemented
@@ -178,7 +179,7 @@ fn main() {
     }
 }
 
-fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn Command> alias_to_cmd, mut ClientProxy client_proxy) {
+fn handle_connection(mut stream: TcpStream, commands: &Vec<Arc<dyn Command>>, alias_to_cmd: &HashMap<&'static str, Arc<dyn Command>>, client_proxy: &mut ClientProxy) {
     let args = Args::from_args();
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).unwrap();
@@ -190,7 +191,7 @@ fn handle_connection(mut stream: TcpStream, Arc<dyn Command> commands, Arc<dyn C
                 if args.verbose {
                     println!("{}", Utc::now().to_rfc3339_opts(SecondsFormat::Secs, true));
                 }
-                cmd.execute(&mut client_proxy, &params);
+                cmd.execute(client_proxy, &params);
             }
             None => match params[0] {
                 x => println!("Unknown command: {:?}", x),

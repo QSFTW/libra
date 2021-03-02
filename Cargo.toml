@@ -138,7 +138,7 @@ members = [
     "testsuite/libra-fuzzer/fuzz",
     "testsuite/libra-swarm",
     "testsuite/smoke-test",
-    "testsuite/diablo-client"
+    "testsuite/diablo-client",
     "types",
     "vm-validator",
 ]

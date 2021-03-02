@@ -1151,6 +1151,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "diablo-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow 1.0.32 (registry+https://github.com/rust-lang/crates.io-index)",
+ "chrono 0.4.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cli 0.1.0",
+ "crash-handler 0.1.0",
+ "hex 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libra-logger 0.1.0",
+ "libra-types 0.1.0",
+ "reqwest 0.10.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustyline 6.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "structopt 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "diagen"
 version = "0.1.0"
 dependencies = [
