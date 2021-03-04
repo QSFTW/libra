@@ -121,7 +121,7 @@ pub struct ClientProxy {
     temp_files: Vec<PathBuf>,
     // invariant self.address_to_ref_id.values().iter().all(|i| i < self.accounts.len())
     /// connection to diablo
-    pub diablo: Option<&TcpStream>,
+    pub diablo: Option<TcpStream>,
 }
 
 impl ClientProxy {
@@ -210,6 +210,7 @@ impl ClientProxy {
             wallet: Self::get_libra_wallet(mnemonic_file)?,
             sync_on_wallet_recovery,
             temp_files: vec![],
+	    diablo: None,
         })
     }
 

@@ -303,7 +303,7 @@ impl Command for DevCommandExecuteMultiple {
 }
 
 pub struct DevCommandDiabloExecute {}
-impl Command for DevCommandExecuteMultiple {
+impl Command for DevCommandDiabloExecute {
     fn get_aliases(&self) -> Vec<&'static str> {
         vec!["execute-diablo"]
     }

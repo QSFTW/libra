@@ -134,7 +134,7 @@ fn main() {
         Ok(s) => s,
         Err(e) => panic!("Problem connecting: {:?}",e),
     };
-    client_proxy.diablo = &st;
+    client_proxy.diablo =Some(st);
     // Test connection to validator
     let block_metadata = client_proxy
         .test_validator_connection()
