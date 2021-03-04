@@ -78,6 +78,9 @@ struct Args {
     /// Verbose output.
     #[structopt(short = "v", long = "verbose")]
     pub verbose: bool,
+    /// Diablo server url
+    #[structopt(short = "d", long = "diablo")]
+    pub diablo: Option<String>
 }
 
 fn main() {
@@ -126,6 +129,12 @@ fn main() {
     )
     .expect("Failed to construct client.");
 
+    let stream = TcpStream::connect("127.0.0.1:3333");
+    let st = match stream{
+        Ok(s) => s,
+        Err(e) => panic!("Problem connecting: {:?}",e),
+    };
+    client_proxy.diablo = &st;
     // Test connection to validator
     let block_metadata = client_proxy
         .test_validator_connection()

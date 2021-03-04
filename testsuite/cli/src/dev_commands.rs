@@ -291,7 +291,7 @@ impl Command for DevCommandExecuteMultiple {
     }
 
     fn get_description(&self) -> &'static str {
-        "Generate a waypoint for the latest epoch change LedgerInfo"
+        "no description"
     }
 
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
@@ -301,3 +301,26 @@ impl Command for DevCommandExecuteMultiple {
         }
     }
 }
+
+pub struct DevCommandDiabloExecute {}
+impl Command for DevCommandExecuteMultiple {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["execute-diablo"]
+    }
+
+    fn get_params_help(&self) -> &'static str {
+        "execute instruction from diablo and transfer result back"
+    }
+
+    fn get_description(&self) -> &'static str {
+        "no description"
+    }
+
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        loop{
+            client.execute_script_non_blocking(params);
+            thread::sleep(Duration::from_millis(10));
+        }
+    }
+}
+
