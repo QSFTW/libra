@@ -43,7 +43,7 @@ impl Command for AccountCommandCreateLocal {
     fn execute(&self, client: &mut ClientProxy, _params: &[&str]) {
         println!(">> Creating/retrieving next local account from wallet");
         match client.create_next_account(true) {
-            Ok(account_data) => {println!(
+            Ok(account_data) => println!(
                 "Created/retrieved local account #{} address {}",
                 account_data.index,
                 hex::encode(account_data.address)
