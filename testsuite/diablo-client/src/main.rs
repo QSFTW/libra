@@ -1,7 +1,7 @@
 use std::io::prelude::*;
+use std::io;
 use std::net::TcpListener;
 use std::net::TcpStream;
-use std::io;
 
 use chrono::{
     prelude::{SecondsFormat, Utc},
@@ -129,12 +129,13 @@ fn main() {
     )
     .expect("Failed to construct client.");
 
-    let stream = TcpStream::connect("127.0.0.1:3333");
-    let st = match stream{
-        Ok(s) => s,
-        Err(e) => panic!("Problem connecting: {:?}",e),
-    };
-    client_proxy.diablo =Some(st);
+    // let stream = TcpStream::connect("127.0.0.1:3333");
+    // let st = match stream{
+    //     Ok(s) => s,
+    //     Err(e) => panic!("Problem connecting: {:?}",e),
+    // };
+    // client_proxy.diablo = Some(st);
+    
     // Test connection to validator
     let block_metadata = client_proxy
         .test_validator_connection()
