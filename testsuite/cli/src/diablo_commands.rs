@@ -16,6 +16,7 @@ impl Command for DiabloCommand {
         let commands: Vec<Box<dyn Command>> = vec![
             Box::new(DiabloCommandConnect {}),
             Box::new(DiabloCommandCreateLocal {}),
+	    Box::new(DiabloCommandGetTxnByAccountSeq {}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -71,6 +72,7 @@ impl Command for DiabloCommandCreateLocal {
     }
 }
 
+pub struct DiabloCommandGetTxnByAccountSeq {}
 impl Command for DiabloCommandGetTxnByAccountSeq {
     fn get_aliases(&self) -> Vec<&'static str> {
         vec!["get-txn", "gt"]
@@ -91,9 +93,9 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
                         let result = format!("{:#?}", txn_view);
                         client.diablo.as_ref().unwrap().write(result.as_bytes());
                     }
-                    None => client.diablo.as_ref().unwrap().write("Transaction not available".as_bytes()),
                 };
             }
+None => client.diablo.as_ref().unwrap().write("Transaction not available".as_bytes()),
             Err(e) => report_error(
                 "Error getting committed transaction by account and sequence number",
                 e,

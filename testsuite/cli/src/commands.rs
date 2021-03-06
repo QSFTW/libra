@@ -8,7 +8,7 @@ use crate::{
     whoami_commands::WhoamiCommand,
     multi_transfer_commands::MultiTransferCommand,
     sequence_query_commands::SequenceQueryCommand,
-    diablo_commands:DiabloCommand,
+    diablo_commands::DiabloCommand,
 };
 use anyhow::Error;
 use libra_types::{account_address::AccountAddress, transaction::authenticator::AuthenticationKey};
