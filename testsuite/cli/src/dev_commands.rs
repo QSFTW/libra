@@ -297,6 +297,7 @@ impl Command for DevCommandExecuteMultiple {
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
         loop{
             match client.execute_script_non_blocking(params){
+                Ok(_k) => (),
                 Err(_e) => println!("Error executing multiple scripts"),
             }
             thread::sleep(Duration::from_millis(10));

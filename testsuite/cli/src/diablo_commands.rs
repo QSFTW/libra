@@ -95,7 +95,7 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
                     }
                 };
             }
-None => client.diablo.as_ref().unwrap().write("Transaction not available".as_bytes()),
+            None => (),
             Err(e) => report_error(
                 "Error getting committed transaction by account and sequence number",
                 e,
