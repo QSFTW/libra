@@ -93,9 +93,9 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
                         let result = format!("{:#?}", txn_view);
                         client.diablo.as_ref().unwrap().write(result.as_bytes());
                     }
+		    None => (),
                 };
             }
-            None => (),
             Err(e) => report_error(
                 "Error getting committed transaction by account and sequence number",
                 e,
