@@ -9,7 +9,7 @@ impl Command for WhoamiCommand {
     fn get_description(&self) -> &'static str {
         "Who am i"
     }
-    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+    fn execute(&self, _client: &mut ClientProxy, _params: &[&str]) {
         println!("IT\'S MEEE");
         return;
     }

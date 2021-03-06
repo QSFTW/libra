@@ -12,7 +12,7 @@ use cli::{
     commands::{get_commands, parse_cmd, report_error, Command},
 };
 use libra_types::{chain_id::ChainId, waypoint::Waypoint};
-use rustyline::{config::CompletionType, error::ReadlineError, Config, Editor};
+// use rustyline::{config::CompletionType, error::ReadlineError, Config, Editor};
 use std::{
     str::FromStr,
     time::{Duration, UNIX_EPOCH},
@@ -135,7 +135,7 @@ fn main() {
     //     Err(e) => panic!("Problem connecting: {:?}",e),
     // };
     // client_proxy.diablo = Some(st);
-    
+
     // Test connection to validator
     let block_metadata = client_proxy
         .test_validator_connection()
@@ -150,10 +150,10 @@ fn main() {
         block_metadata.version,
         DateTime::<Utc>::from(UNIX_EPOCH + Duration::from_micros(block_metadata.timestamp))
     );
-    let cli_info = format!(
-        "Connected to validator at: {}, {}",
-        args.url, ledger_info_str
-    );
+    // let cli_info = format!(
+    //     "Connected to validator at: {}, {}",
+    //     args.url, ledger_info_str
+    // );
     if args.mnemonic_file.is_some() {
         match client_proxy.recover_accounts_in_wallet() {
             Ok(account_data) => {
@@ -176,7 +176,7 @@ fn main() {
         match stream {
             Ok(s) => {
                 // do something with the TcpStream
-                handle_connection(s, &commands,&alias_to_cmd, &mut client_proxy);
+                handle_connection(s, &alias_to_cmd, &mut client_proxy);
             }
             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
                 // wait until network socket is ready, typically implemented
@@ -189,7 +189,7 @@ fn main() {
     }
 }
 
-fn handle_connection(mut stream: TcpStream, commands: &Vec<Arc<dyn Command>>, alias_to_cmd: &HashMap<&'static str, Arc<dyn Command>>, client_proxy: &mut ClientProxy) {
+fn handle_connection(mut stream: TcpStream, alias_to_cmd: &HashMap<&'static str, Arc<dyn Command>>, client_proxy: &mut ClientProxy) {
     let args = Args::from_args();
     let mut buffer = [0; 1024];
     let n =stream.read(&mut buffer).unwrap();

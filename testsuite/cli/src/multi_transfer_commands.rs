@@ -15,18 +15,22 @@ impl Command for MultiTransferCommand {
         let is_blocking = blocking_cmd(&params[0]);
         let num_iter: i32 = params[4].parse().unwrap();
         if is_blocking {
-            for i in 1..num_iter{
+            for _i in 1..num_iter{
                 println!("Timestamp: {:?}", SystemTime::now().duration_since(SystemTime::UNIX_EPOCH));
                 let start = Instant::now();
-                client.transfer_coins(&["transfer", &params[1], &params[2], "1", &params[3]], is_blocking);
+                match client.transfer_coins(&["transfer", &params[1], &params[2], "1", &params[3]], is_blocking){
+                    Err(_e) => println!("Error submitting blocking transaction"),
+                }
                 let duration = start.elapsed();
                 println!("Time elapsed is: {:?}", duration);
             }
         } else{
             let start = Instant::now();
-            for i in 1..num_iter{
-                client.transfer_coins(&["transfer", &params[1], &params[2], "1", &params[3]], is_blocking);
-                thread::sleep(Duration::from_millis(10))
+            for _i in 1..num_iter{
+                match client.transfer_coins(&["transfer", &params[1], &params[2], "1", &params[3]], is_blocking){
+                    Err(_e) => println!("Error submitting non-blocking transaction"),
+                }
+                thread::sleep(Duration::from_millis(10));
             }
             let duration = start.elapsed();
             println!("Time elapsed is: {:?}", duration);

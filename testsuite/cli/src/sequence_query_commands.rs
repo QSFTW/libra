@@ -21,6 +21,5 @@ impl Command for SequenceQueryCommand {
             }
             thread::sleep(Duration::from_millis(1000));
         }
-        return;
     }
 }
