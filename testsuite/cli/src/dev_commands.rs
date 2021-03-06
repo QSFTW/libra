@@ -9,7 +9,6 @@ use chrono::{DateTime, Utc};
 use libra_types::waypoint::Waypoint;
 use::std::thread;
 use std::time::{Duration, UNIX_EPOCH};
-use std::net::TcpStream;
 
 /// Major command for account related operations.
 pub struct DevCommand {}
@@ -31,7 +30,6 @@ impl Command for DevCommand {
             Box::new(DevCommandChangeLibraVersion {}),
             Box::new(DevCommandEnableCustomScript {}),
             Box::new(DevCommandExecuteMultiple {}),
-            Box::new(DevCommandDiabloConnect {}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -326,26 +324,3 @@ impl Command for DevCommandDiabloExecute {
     }
 }
 
-pub struct DevCommandDiabloConnect {}
-impl Command for DevCommandDiabloConnect {
-    fn get_aliases(&self) -> Vec<&'static str> {
-        vec!["connect-diablo"]
-    }
-
-    fn get_params_help(&self) -> &'static str {
-        ""
-    }
-
-    fn get_description(&self) -> &'static str {
-        "connect to diablo, set up the channel to transfer result back"
-    }
-
-    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        let stream = TcpStream::connect("127.0.0.1:3333");
-        let st = match stream{
-            Ok(s) => s,
-            Err(e) => panic!("Problem connecting: {:?}",e),
-        };
-        client.diablo = Some(st);
-    }
-}
