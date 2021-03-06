@@ -1,6 +1,7 @@
 // Copyright (c) The Libra Core Contributors
 // SPDX-License-Identifier: Apache-2.0
 
+use std::io::prelude::*;
 use crate::{
     client_proxy::ClientProxy,
     commands::{blocking_cmd, report_error, subcommand_execute, Command},
@@ -43,11 +44,13 @@ impl Command for AccountCommandCreateLocal {
     fn execute(&self, client: &mut ClientProxy, _params: &[&str]) {
         println!(">> Creating/retrieving next local account from wallet");
         match client.create_next_account(true) {
-            Ok(account_data) => println!(
+            Ok(account_data) => {println!(
                 "Created/retrieved local account #{} address {}",
                 account_data.index,
                 hex::encode(account_data.address)
-            ),
+            );
+	    client.diablo.as_ref().unwrap().write("something".as_bytes());
+	},
             Err(e) => report_error("Error creating local account", e),
         }
     }
