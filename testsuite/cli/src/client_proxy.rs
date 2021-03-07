@@ -122,6 +122,8 @@ pub struct ClientProxy {
     // invariant self.address_to_ref_id.values().iter().all(|i| i < self.accounts.len())
     /// connection to diablo
     pub diablo: Option<TcpStream>,
+    /// pool of signed transaction
+    pub transaction_pool: Vec<SignedTransaction>,
 }
 
 impl ClientProxy {
@@ -210,7 +212,8 @@ impl ClientProxy {
             wallet: Self::get_libra_wallet(mnemonic_file)?,
             sync_on_wallet_recovery,
             temp_files: vec![],
-	    diablo: None,
+            transaction_pool: vec![],
+            diablo: None,
         })
     }
 
@@ -989,7 +992,7 @@ impl ClientProxy {
             self.get_account_address_from_parameter(space_delim_strings[1])?;
         let sender_ref_id = self.get_account_ref_id(&sender_address)?;
         let sender = self.accounts.get(sender_ref_id).unwrap();
-        let sequence_number = sender.sequence_number;
+        let _sequence_number = sender.sequence_number;
 
         let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
 
@@ -1046,6 +1049,22 @@ impl ClientProxy {
             space_delim_strings,
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
         )
+    }
+
+    pub fn create_signed_txn(&mut self, space_delim_strings: &[&str])-> Result<()> {
+        let script_bytes = fs::read(space_delim_strings[2])?;
+        let arguments: Vec<_> = space_delim_strings[3..]
+            .iter()
+            .filter_map(|arg| parse_transaction_argument_for_client(arg).ok())
+            .collect();
+        
+        let (sender_address, _) =
+            self.get_account_address_from_parameter(space_delim_strings[1])?;
+        let sender_ref_id = self.get_account_ref_id(&sender_address)?;
+        let sender = self.accounts.get(sender_ref_id).unwrap();
+        let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
+        self.transaction_pool.push(txn);
+        Ok(())
     }
 
     /// Get the latest account information from validator.

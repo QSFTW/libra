@@ -103,3 +103,19 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
         }
     }
 }
+
+pub struct DiabloCommandMakeTransaction {}
+impl Command for DiabloCommandMakeTransaction {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["make-txn", "mt"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<account_ref_id>|<account_address> <sequence_number> <fetch_events=true|false>"
+    }
+    fn get_description(&self) -> &'static str {
+        "Generate signed transaction and store it for execution later"
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        client.create_signed_transaction(params);
+    }
+}
