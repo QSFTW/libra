@@ -1062,7 +1062,7 @@ impl ClientProxy {
             self.get_account_address_from_parameter(space_delim_strings[1])?;
         let sender_ref_id = self.get_account_ref_id(&sender_address)?;
         let sender = self.accounts.get(sender_ref_id).unwrap();
-        let txn = self.create_txn_to_submit(program, &sender, None, None, None)?;
+        let txn = self.create_txn_to_submit(TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)), &sender, None, None, None)?;
         self.transaction_pool.push(txn);
         Ok(())
     }

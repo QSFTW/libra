@@ -116,6 +116,6 @@ impl Command for DiabloCommandMakeTransaction {
         "Generate signed transaction and store it for execution later"
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        client.create_signed_transaction(params);
+        client.create_signed_txn(params);
     }
 }
