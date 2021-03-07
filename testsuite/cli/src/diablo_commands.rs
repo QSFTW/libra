@@ -29,7 +29,7 @@ impl Command for DiabloCommandConnect {
     }
 
     fn get_params_help(&self) -> &'static str {
-        ""
+        "<url_to_connect_to>"
     }
 
     fn get_description(&self) -> &'static str {
@@ -37,7 +37,7 @@ impl Command for DiabloCommandConnect {
     }
 
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        let stream = TcpStream::connect("127.0.0.1:3333");
+        let stream = TcpStream::connect(&params[1]);
         let st = match stream{
             Ok(s) => s,
             Err(e) => panic!("Problem connecting: {:?}",e),

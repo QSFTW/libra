@@ -93,7 +93,7 @@ fn main() {
     logger.init();
     crash_handler::setup_panic_handler();
 
-    let (commands, alias_to_cmd) = get_commands(args.faucet_account_file.is_some());
+    let (_commands, alias_to_cmd) = get_commands(args.faucet_account_file.is_some());
 
     let faucet_account_file = args
         .faucet_account_file
@@ -137,7 +137,7 @@ fn main() {
     // client_proxy.diablo = Some(st);
 
     // Test connection to validator
-    let block_metadata = client_proxy
+    let _block_metadata = client_proxy
         .test_validator_connection()
         .unwrap_or_else(|e| {
             panic!(
@@ -145,11 +145,11 @@ fn main() {
                 args.url, e,
             )
         });
-    let ledger_info_str = format!(
-        "latest version = {}, timestamp = {}",
-        block_metadata.version,
-        DateTime::<Utc>::from(UNIX_EPOCH + Duration::from_micros(block_metadata.timestamp))
-    );
+    // let ledger_info_str = format!(
+    //     "latest version = {}, timestamp = {}",
+    //     block_metadata.version,
+    //     DateTime::<Utc>::from(UNIX_EPOCH + Duration::from_micros(block_metadata.timestamp))
+    // );
     // let cli_info = format!(
     //     "Connected to validator at: {}, {}",
     //     args.url, ledger_info_str
@@ -170,7 +170,8 @@ fn main() {
     }
 
     // SETUP TCP server
-    let listener = TcpListener::bind("0.0.0.0:7878").unwrap();
+    let diablo_server_url = args.diablo.clone().unwrap_or_else(|| "0.0.0.0:7878".to_string());
+    let listener = TcpListener::bind(diablo_server_url).unwrap();
     listener.set_nonblocking(true).expect("Cannot set non-blocking");
     for stream in listener.incoming() {
         match stream {
