@@ -2,7 +2,6 @@ use crate::{client_proxy::ClientProxy, commands::*};
 
 use std::io::prelude::*;
 use std::net::TcpStream;
-use std::thread;
 
 pub struct DiabloCommand {}
 
@@ -136,9 +135,6 @@ impl Command for DiabloCommandExecuteTransaction{
         "execute a transaction in client.transaction_pool"
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        timeTransaction(client, params);
-    }
-    fn timeTransaction(client: &mut ClientProxy, params: &[&str]){
         let txn =  client.transaction_pool.pop().unwrap();
         //println!("{:#?}", txn);
         let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
@@ -146,11 +142,9 @@ impl Command for DiabloCommandExecuteTransaction{
             Err(e) => return,
         };
         // TODO execute transactions in parallel
-        thread::spawn(|| {
             match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
                 Ok(result) => println!("Result {:#?}", result),
                 Err(e) => report_error("Err", e,),
             }
-        });
     }
 }
