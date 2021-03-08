@@ -1066,6 +1066,35 @@ impl ClientProxy {
         self.transaction_pool.push(txn);
         Ok(())
     }
+    pub fn create_signed_txn_with_sequence_number(&mut self, space_delim_strings: &[&str])-> Result<()> {
+        let script_bytes = fs::read(space_delim_strings[3])?;
+        let arguments: Vec<_> = space_delim_strings[4..]
+            .iter()
+            .filter_map(|arg| parse_transaction_argument_for_client(arg).ok())
+            .collect();
+        
+        let (sender_address, _) =
+            self.get_account_address_from_parameter(space_delim_strings[1])?;
+        let sender_ref_id = self.get_account_ref_id(&sender_address)?;
+        let sender = self.accounts.get(sender_ref_id).unwrap();
+        let signer: Box<&dyn TransactionSigner> = match &sender_account.key_pair {
+            Some(key_pair) => Box::new(key_pair),
+            None => Box::new(&self.wallet),
+        };
+        let txn = create_user_txn(
+            *signer,
+            TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
+            sender_account.address,
+            sender_account.sequence_number,
+            max_gas_amount.unwrap_or(MAX_GAS_AMOUNT),
+            gas_unit_price.unwrap_or(GAS_UNIT_PRICE),
+            gas_currency_code.unwrap_or_else(|| LBR_NAME.to_owned()),
+            TX_EXPIRATION,
+            self.chain_id,
+        )
+        self.transaction_pool.insert(0,txn);
+        Ok(())
+    }
 
     /// Get the latest account information from validator.
     pub fn get_latest_account(

@@ -16,7 +16,8 @@ impl Command for DiabloCommand {
         let commands: Vec<Box<dyn Command>> = vec![
             Box::new(DiabloCommandConnect {}),
             Box::new(DiabloCommandCreateLocal {}),
-	    Box::new(DiabloCommandGetTxnByAccountSeq {}),
+            Box::new(DiabloCommandGetTxnByAccountSeq {}),
+            Box::new(DiabloCommandMakeTransaction {}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -110,12 +111,30 @@ impl Command for DiabloCommandMakeTransaction {
         vec!["make-txn", "mt"]
     }
     fn get_params_help(&self) -> &'static str {
-        "<account_ref_id>|<account_address> <sequence_number> <fetch_events=true|false>"
+        "<account_ref_id>|<account_address> <sequence_number> <path_to_script> [parameters]"
     }
     fn get_description(&self) -> &'static str {
         "Generate signed transaction and store it for execution later"
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        client.create_signed_txn(params);
+        client.create_signed_txn_with_sequence_number(params);
+    }
+}
+
+
+pub struct DiabloCommandExecuteTransaction{}
+impl Command for DiabloCommandExecuteTransaction{
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["execute-txn", "et"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        ""
+    }
+    fn get_description(&self) -> &'static str {
+        "execute a transaction in client.transaction_pool"
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        // TODO
+        client.client.submit_transaction(None, client.transaction_pool.pop())?;
     }
 }
