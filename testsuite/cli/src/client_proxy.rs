@@ -104,7 +104,7 @@ pub struct ClientProxy {
     /// Created accounts.
     pub accounts: Vec<AccountData>,
     /// Address to account_ref_id map.
-    address_to_ref_id: HashMap<AccountAddress, usize>,
+    pub address_to_ref_id: HashMap<AccountAddress, usize>,
     /// Host that operates a faucet service
     faucet_url: Url,
     /// Account used for Libra Root operations (e.g., adding a new transaction script)
@@ -217,7 +217,7 @@ impl ClientProxy {
         })
     }
 
-    fn get_account_ref_id(&self, sender_account_address: &AccountAddress) -> Result<usize> {
+    pub fn get_account_ref_id(&self, sender_account_address: &AccountAddress) -> Result<usize> {
         Ok(*self
             .address_to_ref_id
             .get(&sender_account_address)

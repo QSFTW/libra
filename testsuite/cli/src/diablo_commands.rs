@@ -136,11 +136,16 @@ impl Command for DiabloCommandExecuteTransaction{
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
         // TODO
-	let txn =  client.transaction_pool.pop().unwrap();
-	//println!("{:#?}", txn);
-	match client.client.submit_transaction(None, txn){
-	    Ok(result) => println!("{:#?}", result),
-	    Err(e) => report_error("Err", e,),
-	}
+        let txn =  client.transaction_pool.pop().unwrap();
+        //println!("{:#?}", txn);
+        let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
+            Ok(result) => result,
+            Err(e) => report_error("Err", e,),
+        }
+        
+        match client.client.submit_transaction(client.accounts.get(sender_ref_id).unwrap(), txn){
+            Ok(result) => println!("Result {:#?}", result),
+            Err(e) => report_error("Err", e,),
+        }
     }
 }
