@@ -1086,7 +1086,7 @@ impl ClientProxy {
             *signer,
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
             sender_account.address,
-            sender_account.sequence_number,
+            space_delim_strings[2].parse::<u64>().unwrap(),
             MAX_GAS_AMOUNT,
             GAS_UNIT_PRICE,
             "Coin1".to_owned(),

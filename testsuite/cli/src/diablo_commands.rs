@@ -140,10 +140,10 @@ impl Command for DiabloCommandExecuteTransaction{
         //println!("{:#?}", txn);
         let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
             Ok(result) => result,
-            Err(e) => report_error("Err", e,),
-        }
+            Err(e) => 9999999999,
+        };
         
-        match client.client.submit_transaction(client.accounts.get(sender_ref_id).unwrap(), txn){
+        match client.client.submit_transaction(Some(client.accounts.get_mut(sender_ref_id).unwrap()), txn){
             Ok(result) => println!("Result {:#?}", result),
             Err(e) => report_error("Err", e,),
         }
