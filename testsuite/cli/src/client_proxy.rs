@@ -1077,6 +1077,7 @@ impl ClientProxy {
             self.get_account_address_from_parameter(space_delim_strings[1])?;
         let sender_ref_id = self.get_account_ref_id(&sender_address)?;
         let sender = self.accounts.get(sender_ref_id).unwrap();
+	let sender_account = &sender;
         let signer: Box<&dyn TransactionSigner> = match &sender_account.key_pair {
             Some(key_pair) => Box::new(key_pair),
             None => Box::new(&self.wallet),
@@ -1086,12 +1087,12 @@ impl ClientProxy {
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
             sender_account.address,
             sender_account.sequence_number,
-            max_gas_amount.unwrap_or(MAX_GAS_AMOUNT),
-            gas_unit_price.unwrap_or(GAS_UNIT_PRICE),
-            gas_currency_code.unwrap_or_else(|| LBR_NAME.to_owned()),
+            MAX_GAS_AMOUNT,
+            GAS_UNIT_PRICE,
+            "Coin1".to_owned(),
             TX_EXPIRATION,
             self.chain_id,
-        )
+        )?;
         self.transaction_pool.insert(0,txn);
         Ok(())
     }
@@ -1675,7 +1676,7 @@ impl ClientProxy {
             sender_account.sequence_number,
             max_gas_amount.unwrap_or(MAX_GAS_AMOUNT),
             gas_unit_price.unwrap_or(GAS_UNIT_PRICE),
-            gas_currency_code.unwrap_or_else(|| LBR_NAME.to_owned()),
+            gas_currency_code.unwrap_or_else(|| "Coin1".to_owned()),
             TX_EXPIRATION,
             self.chain_id,
         )

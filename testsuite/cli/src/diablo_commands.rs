@@ -18,6 +18,7 @@ impl Command for DiabloCommand {
             Box::new(DiabloCommandCreateLocal {}),
             Box::new(DiabloCommandGetTxnByAccountSeq {}),
             Box::new(DiabloCommandMakeTransaction {}),
+	    Box::new(DiabloCommandExecuteTransaction{}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -135,6 +136,11 @@ impl Command for DiabloCommandExecuteTransaction{
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
         // TODO
-        client.client.submit_transaction(None, client.transaction_pool.pop())?;
+	let txn =  client.transaction_pool.pop().unwrap();
+	//println!("{:#?}", txn);
+	match client.client.submit_transaction(None, txn){
+	    Ok(result) => println!("{:#?}", result),
+	    Err(e) => report_error("Err", e,),
+	}
     }
 }
