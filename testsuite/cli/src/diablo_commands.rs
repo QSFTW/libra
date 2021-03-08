@@ -141,10 +141,10 @@ impl Command for DiabloCommandExecuteTransaction{
         let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
             Ok(result) => result,
             Err(e) => return,
-        }
+        };
         // TODO execute transactions in parallel
-        thread::spawn(|| {
-            match client.client.submit_transaction(client.accounts.get(sender_ref_id).unwrap(), txn){
+        thread::spawn(move || {
+            match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
                 Ok(result) => println!("Result {:#?}", result),
                 Err(e) => report_error("Err", e,),
             }
