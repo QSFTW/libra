@@ -95,7 +95,7 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
                         let result = format!("{:#?}", txn_view);
                         client.diablo.as_ref().unwrap().write(result.as_bytes());
                     }
-		    None => (),
+		            None => (),
                 };
             }
             Err(e) => report_error(
@@ -141,10 +141,16 @@ impl Command for DiabloCommandExecuteTransaction{
             Ok(result) => result,
             Err(e) => return,
         };
-        // TODO execute transactions in parallel
-            match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
-                Ok(result) => println!("Result {:#?}", result),
-                Err(e) => report_error("Err", e,),
-            }
+        // TODO get the starting time 
+        match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
+            Ok(result) => {
+                println!("Result {:#?}", result);
+                client.diablo.as_ref().unwrap().write("OK".as_bytes());
+            },
+            Err(e) => {
+                report_error("Err", e,);
+                client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
+            },
+        }
     }
 }
