@@ -748,7 +748,7 @@ impl ClientProxy {
         loop {
             match self
                 .client
-                .get_txn_by_acc_seq(account, sequence_number - 1, true)
+                .get_txn_by_acc_seq(account, sequence_number, true)
             {
                 Ok(Some(txn_view)) => {
                     if txn_view.vm_status == VMStatusView::Executed {
