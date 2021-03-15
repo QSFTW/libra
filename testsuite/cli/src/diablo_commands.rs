@@ -141,16 +141,25 @@ impl Command for DiabloCommandExecuteTransaction{
             Ok(result) => result,
             Err(e) => return,
         };
-        // TODO get the starting time 
         match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
             Ok(result) => {
                 println!("Result {:#?}", result);
-                client.diablo.as_ref().unwrap().write("OK".as_bytes());
+                match client.wait_for_transaction_quitely(txn.sender(), txn.sequence_number()){
+                    Ok(_result)=>{
+                        client.diablo.as_ref().unwrap().write("OK".as_bytes());
+                    },
+                    Err(e) => {
+                        report_error("Err", e,);
+                        client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
+                    }
+                }
+                
             },
             Err(e) => {
                 report_error("Err", e,);
                 client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
             },
         }
+        
     }
 }

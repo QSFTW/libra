@@ -734,6 +734,49 @@ impl ClientProxy {
         }
     }
 
+    /// Waits for the next transaction for a specific address
+    pub fn wait_for_transaction_quitely(
+        &mut self,
+        account: AccountAddress,
+        sequence_number: u64,
+    ) -> Result<()> {
+        let mut max_iterations = 5000;
+        println!(
+            "waiting for {} with sequence number {}",
+            account, sequence_number
+        );
+        loop {
+            match self
+                .client
+                .get_txn_by_acc_seq(account, sequence_number - 1, true)
+            {
+                Ok(Some(txn_view)) => {
+                    if txn_view.vm_status == VMStatusView::Executed {
+                        break Ok(());
+                    } else {
+                        break Err(format_err!(
+                            "transaction failed to execute; status: {:?}!",
+                            txn_view.vm_status
+                        ));
+                    }
+                }
+                Err(e) => {
+                    break Err(format_err!(
+                        "failed to wait for txn: {:?}!",
+                        e
+                    ));
+                }
+                _ => {
+                }
+            }
+            max_iterations -= 1;
+            if max_iterations == 0 {
+                panic!("wait_for_transaction timeout");
+            }
+            thread::sleep(time::Duration::from_millis(10));
+        }
+    }
+
     /// Transfer num_coins from sender account to receiver. If is_blocking = true,
     /// it will keep querying validator till the sequence number is bumped up in validator.
     pub fn transfer_coins_int(
