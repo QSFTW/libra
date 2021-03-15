@@ -134,17 +134,19 @@ impl Command for DiabloCommandExecuteTransaction{
     fn get_description(&self) -> &'static str {
         "execute a transaction in client.transaction_pool"
     }
-    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+    fn execute(&self, client: &mut ClientProxy, _params: &[&str]) {
         let txn =  client.transaction_pool.pop().unwrap();
+        let txn_sender = txn.sender();
+        let txn_seq_num = txn.sequence_number();
         //println!("{:#?}", txn);
         let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
             Ok(result) => result,
-            Err(e) => return,
+            Err(_e) => return,
         };
         match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
             Ok(result) => {
                 println!("Result {:#?}", result);
-                match client.wait_for_transaction_quitely(txn.sender(), txn.sequence_number()){
+                match client.wait_for_transaction_quitely(txn_sender, txn_seq_num){
                     Ok(_result)=>{
                         client.diablo.as_ref().unwrap().write("OK".as_bytes());
                     },
@@ -153,7 +155,6 @@ impl Command for DiabloCommandExecuteTransaction{
                         client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
                     }
                 }
-                
             },
             Err(e) => {
                 report_error("Err", e,);
