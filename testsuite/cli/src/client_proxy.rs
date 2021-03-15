@@ -1077,7 +1077,7 @@ impl ClientProxy {
             self.get_account_address_from_parameter(space_delim_strings[1])?;
         let sender_ref_id = self.get_account_ref_id(&sender_address)?;
         let sender = self.accounts.get(sender_ref_id).unwrap();
-	let sender_account = &sender;
+	    let sender_account = &sender;
         let signer: Box<&dyn TransactionSigner> = match &sender_account.key_pair {
             Some(key_pair) => Box::new(key_pair),
             None => Box::new(&self.wallet),

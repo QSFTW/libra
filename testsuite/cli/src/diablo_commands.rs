@@ -129,7 +129,7 @@ impl Command for DiabloCommandExecuteTransaction{
         vec!["execute-txn", "et"]
     }
     fn get_params_help(&self) -> &'static str {
-        ""
+        "<txn_id>"
     }
     fn get_description(&self) -> &'static str {
         "execute a transaction in client.transaction_pool"
