@@ -15,7 +15,7 @@ use libra_types::{chain_id::ChainId, waypoint::Waypoint};
 // use rustyline::{config::CompletionType, error::ReadlineError, Config, Editor};
 use std::{
     str::FromStr,
-    time::{Duration, UNIX_EPOCH},
+    time::SystemTime,
     sync::Arc,
     collections::HashMap,
 };
@@ -196,7 +196,7 @@ fn handle_connection(mut stream: TcpStream, alias_to_cmd: &HashMap<&'static str,
     let n =stream.read(&mut buffer).unwrap();
     let line = format!("{}",String::from_utf8_lossy(&buffer[..n]).trim());
     let params = parse_cmd(&line);
-    let startTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH);
+    let startTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
     if !params.is_empty() {
         match alias_to_cmd.get(&params[0]) {
             Some(cmd) => {
@@ -210,7 +210,7 @@ fn handle_connection(mut stream: TcpStream, alias_to_cmd: &HashMap<&'static str,
             },
         }
     }
-    let endTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH);
+    let endTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
     // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
     let response = format!("{:?}|{:?}", startTime, endTime);
     stream.write(response.as_bytes()).unwrap();
