@@ -196,7 +196,7 @@ fn handle_connection(mut stream: TcpStream, alias_to_cmd: &HashMap<&'static str,
     let n =stream.read(&mut buffer).unwrap();
     let line = format!("{}",String::from_utf8_lossy(&buffer[..n]).trim());
     let params = parse_cmd(&line);
-    let startTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    let start_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis();
     if !params.is_empty() {
         match alias_to_cmd.get(&params[0]) {
             Some(cmd) => {
@@ -210,9 +210,10 @@ fn handle_connection(mut stream: TcpStream, alias_to_cmd: &HashMap<&'static str,
             },
         }
     }
-    let endTime = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+
+    let end_time = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis();
     // println!("Request: {}", String::from_utf8_lossy(&buffer[..]));
-    let response = format!("{:?}|{:?}", startTime, endTime);
+    let response = format!("{:?}|{:?}", start_time, end_time);
     stream.write(response.as_bytes()).unwrap();
     stream.flush().unwrap();
 }
