@@ -5,7 +5,8 @@ use crate::{
     client_proxy::ClientProxy,
     commands::{report_error, subcommand_execute, Command},
 };
-
+use std::thread;
+use std::time::Duration;
 /// Major command for query operations.
 pub struct QueryCommand {}
 
@@ -78,6 +79,7 @@ impl Command for QueryCommandGetSeqNum {
             Ok(sn) => println!("Sequence number is: {}", sn),
             Err(e) => report_error("Error getting sequence number", e),
         }
+        thread::sleep(Duration::from_millis(1000));
     }
 }
 

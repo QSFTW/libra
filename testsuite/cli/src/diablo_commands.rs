@@ -2,6 +2,8 @@ use crate::{client_proxy::ClientProxy, commands::*};
 
 use std::io::prelude::*;
 use std::net::TcpStream;
+use std::thread;
+use std::time::Duration;
 
 pub struct DiabloCommand {}
 
@@ -18,7 +20,8 @@ impl Command for DiabloCommand {
             Box::new(DiabloCommandCreateLocal {}),
             Box::new(DiabloCommandGetTxnByAccountSeq {}),
             Box::new(DiabloCommandMakeTransaction {}),
-	    Box::new(DiabloCommandExecuteTransaction{}),
+            Box::new(DiabloCommandExecuteTransaction{}),
+            Box::new(DiabloCommandExecuteTransactionNonBlocking{})
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -148,19 +151,80 @@ impl Command for DiabloCommandExecuteTransaction{
                 println!("Result {:#?}", result);
                 match client.wait_for_transaction_quitely(txn_sender, txn_seq_num){
                     Ok(_result)=>{
-                        client.diablo.as_ref().unwrap().write("OK".as_bytes());
+                        // client.diablo.as_ref().unwrap().write("OK".as_bytes());
                     },
                     Err(e) => {
                         report_error("Err", e,);
-                        client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
+                        // client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
                     }
                 }
             },
             Err(e) => {
                 report_error("Err", e,);
-                client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
+                // client.diablo.as_ref().unwrap().write("FAIL".as_bytes());
             },
         }
         
+    }
+}
+
+pub struct DiabloCommandExecuteTransactionNonBlocking{}
+impl Command for DiabloCommandExecuteTransactionNonBlocking{
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["execute-txn-non-blocking", "etn"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<txn_id>"
+    }
+    fn get_description(&self) -> &'static str {
+        "execute a transaction in client.transaction_pool"
+    }
+    fn execute(&self, client: &mut ClientProxy, _params: &[&str]) {
+        let txn =  client.transaction_pool.pop().unwrap();
+        //println!("{:#?}", txn);
+        let sender_ref_id = match client.get_account_ref_id(&txn.sender()){
+            Ok(result) => result,
+            Err(_e) => return,
+        };
+        match client.client.submit_transaction(client.accounts.get_mut(sender_ref_id), txn){
+            Ok(result) => {
+                println!("Result {:#?}", result);
+                // client.diablo.as_ref().unwrap().write("SUBMITTED".as_bytes());
+            },
+            Err(e) => {
+                report_error("Err", e,);
+                // client.diablo.as_ref().unwrap().write("FAIL_SUBMITTED".as_bytes());
+            },
+        }
+        
+    }
+}
+
+pub struct DiabloCommandGetSeqNumber{}
+impl Command for DiabloCommandGetSeqNumber{
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["get-seq-num", "gsn"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<account_ref_id>"
+    }
+    fn get_description(&self) -> &'static str {
+        "get the latest seq number of account"
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        println!(">> Getting current sequence number");
+        loop{
+            match client.get_sequence_number(&params) {
+                Ok(sn) => {
+                    let seq_num = format!("{}", sn);
+                    client.diablo.as_ref().unwrap().write(seq_num.as_bytes());
+                },
+                Err(e) => {
+                    report_error("Err", e,);
+                    client.diablo.as_ref().unwrap().write("FAIL_GET_SEQ".as_bytes());
+                },
+            }
+            thread::sleep(Duration::from_millis(1000));
+        }
     }
 }
