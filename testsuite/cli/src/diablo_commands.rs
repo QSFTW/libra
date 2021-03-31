@@ -21,7 +21,8 @@ impl Command for DiabloCommand {
             Box::new(DiabloCommandGetTxnByAccountSeq {}),
             Box::new(DiabloCommandMakeTransaction {}),
             Box::new(DiabloCommandExecuteTransaction{}),
-            Box::new(DiabloCommandExecuteTransactionNonBlocking{})
+            Box::new(DiabloCommandExecuteTransactionNonBlocking{}),
+            Box::new(DiabloCommandGetSeqNumber{}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
