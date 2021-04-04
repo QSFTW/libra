@@ -24,7 +24,7 @@ impl Command for DiabloCommand {
             Box::new(DiabloCommandExecuteTransactionNonBlocking{}),
             Box::new(DiabloCommandGetSeqNumber{}),
             Box::new(DiabloCommandMakeExecuteTransaction{}),
-            Box::new(DiabloCommandExecuteTransactionNonBlocking{}),
+            Box::new(DiabloCommandMakeExecuteTransactionNonBlocking{}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
