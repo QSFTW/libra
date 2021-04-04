@@ -23,6 +23,8 @@ impl Command for DiabloCommand {
             Box::new(DiabloCommandExecuteTransaction{}),
             Box::new(DiabloCommandExecuteTransactionNonBlocking{}),
             Box::new(DiabloCommandGetSeqNumber{}),
+            Box::new(DiabloCommandMakeExecuteTransaction{}),
+            Box::new(DiabloCommandExecuteTransactionNonBlocking{}),
         ];
         subcommand_execute(&params[0], commands, client, &params[1..]);
     }
@@ -227,5 +229,37 @@ impl Command for DiabloCommandGetSeqNumber{
             }
             thread::sleep(Duration::from_millis(1000));
         }
+    }
+}
+
+
+pub struct DiabloCommandMakeExecuteTransaction {}
+impl Command for DiabloCommandMakeExecuteTransaction {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["make-execute", "me"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<account_ref_id>|<account_address> <sequence_number> <path_to_script> [parameters]"
+    }
+    fn get_description(&self) -> &'static str {
+        "Generate signed transaction and store it for execution later"
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        client.execute_txn_with_sequence_number(params);
+    }
+}
+pub struct DiabloCommandMakeExecuteTransactionNonBlocking {}
+impl Command for DiabloCommandMakeExecuteTransactionNonBlocking {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["make-execute-non-blocking", "men"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<account_ref_id>|<account_address> <sequence_number> <path_to_script> [parameters]"
+    }
+    fn get_description(&self) -> &'static str {
+        "Generate signed transaction and store it for execution later"
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        client.execute_txn_with_sequence_number_non_blocking(params);
     }
 }

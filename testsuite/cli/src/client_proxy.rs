@@ -1109,10 +1109,10 @@ impl ClientProxy {
         self.transaction_pool.push(txn);
         Ok(())
     }
-    pub fn create_signed_txn_with_sequence_number(&mut self, space_delim_strings: &[&str])-> Result<()> {
+    fn create_signed_0(&mut self, space_delim_strings: &[&str])-> Result<SignedTransaction, anyhow::Error> {
         let script_bytes = fs::read(space_delim_strings[3])?;
         let arguments: Vec<_> = space_delim_strings[4..]
-            .iter()
+            .iter() 
             .filter_map(|arg| parse_transaction_argument_for_client(arg).ok())
             .collect();
         
@@ -1125,7 +1125,7 @@ impl ClientProxy {
             Some(key_pair) => Box::new(key_pair),
             None => Box::new(&self.wallet),
         };
-        let txn = create_user_txn(
+        create_user_txn(
             *signer,
             TransactionPayload::Script(Script::new(script_bytes, vec![], arguments)),
             sender_account.address,
@@ -1135,9 +1135,28 @@ impl ClientProxy {
             "Coin1".to_owned(),
             TX_EXPIRATION,
             self.chain_id,
-        )?;
+        )
+    }
+    pub fn create_signed_txn_with_sequence_number(&mut self, space_delim_strings: &[&str])-> Result<()> {
+        let txn = self.create_signed_0(space_delim_strings)?;
         self.transaction_pool.insert(0,txn);
         Ok(())
+    }
+
+    pub fn execute_txn_with_sequence_number_non_blocking(&mut self, space_delim_strings: &[&str])-> Result<()> {
+        let txn = self.create_signed_0(space_delim_strings)?;
+        let account_data = self.accounts.get_mut(space_delim_strings[1].parse::<usize>().unwrap());
+        self.client.submit_transaction(account_data, txn)
+
+    }
+
+    pub fn execute_txn_with_sequence_number(&mut self, space_delim_strings: &[&str])-> Result<()> {
+        let txn = self.create_signed_0(space_delim_strings)?;
+        let txn_sender = txn.sender();
+        let txn_seq_num = txn.sequence_number();
+        let account_data = self.accounts.get_mut(space_delim_strings[1].parse::<usize>().unwrap());
+        self.client.submit_transaction(account_data, txn)?;
+        self.wait_for_transaction_quitely(txn_sender, txn_seq_num)
     }
 
     /// Get the latest account information from validator.
