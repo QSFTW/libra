@@ -245,7 +245,14 @@ impl Command for DiabloCommandMakeExecuteTransaction {
         "Generate signed transaction and store it for execution later"
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        client.execute_txn_with_sequence_number(params);
+        match client.execute_txn_with_sequence_number(params){
+            Ok(_res)=>{
+                println!("Result OK");
+            },
+            Err(e)=>{
+                report_error("Err", e,);
+            }
+        }
     }
 }
 pub struct DiabloCommandMakeExecuteTransactionNonBlocking {}
@@ -260,6 +267,13 @@ impl Command for DiabloCommandMakeExecuteTransactionNonBlocking {
         "Generate signed transaction and store it for execution later"
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
-        client.execute_txn_with_sequence_number_non_blocking(params);
+        match client.execute_txn_with_sequence_number_non_blocking(params){
+            Ok(_res)=>{
+                println!("Result OK");
+            },
+            Err(e)=>{
+                report_error("Err", e,);
+            }
+        }
     }
 }
