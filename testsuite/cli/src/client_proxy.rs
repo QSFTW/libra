@@ -1077,11 +1077,7 @@ impl ClientProxy {
     }
 
     /// same as above but does not wait for completion
-    pub fn execute_script_non_blocking
-        (
-            &mut self, 
-            space_delim_strings: &[&str]
-        )-> Result<()> {
+    pub fn execute_script_non_blocking(&mut self, space_delim_strings: &[&str])-> Result<()> {
         let script_bytes = fs::read(space_delim_strings[2])?;
         let arguments: Vec<_> = space_delim_strings[3..]
             .iter()

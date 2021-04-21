@@ -97,11 +97,12 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
         match client.get_committed_txn_by_acc_seq(&params) {
             Ok(txn_view) => {
                 match txn_view {
-                    Some(txn_view) => {
-                        let result = format!("{:#?}", txn_view);
-                        client.diablo.as_ref().unwrap().write(result.as_bytes());
-                    }
-		            None => (),
+                    Some(_txn_view) => {
+                        client.diablo.as_ref().unwrap().write("DONE".as_bytes());
+                    },
+		            None => {
+                        client.diablo.as_ref().unwrap().write("NOT_DONE".as_bytes());
+                    },
                 };
             }
             Err(e) => report_error(
@@ -255,6 +256,7 @@ impl Command for DiabloCommandMakeExecuteTransaction {
         }
     }
 }
+
 pub struct DiabloCommandMakeExecuteTransactionNonBlocking {}
 impl Command for DiabloCommandMakeExecuteTransactionNonBlocking {
     fn get_aliases(&self) -> Vec<&'static str> {
@@ -274,6 +276,38 @@ impl Command for DiabloCommandMakeExecuteTransactionNonBlocking {
             Err(e)=>{
                 report_error("Err", e,);
             }
+        }
+    }
+}
+
+pub struct QueryCommandGetTxnByAccountSeq {}
+
+impl Command for QueryCommandGetTxnByAccountSeq {
+    fn get_aliases(&self) -> Vec<&'static str> {
+        vec!["txn_acc_seq", "ts"]
+    }
+    fn get_params_help(&self) -> &'static str {
+        "<account_ref_id>|<account_address> <sequence_number> <fetch_events=true|false>"
+    }
+    fn get_description(&self) -> &'static str {
+        "Get the committed transaction by account and sequence number.  \
+         Optionally also fetch events emitted by this transaction."
+    }
+    fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
+        println!(">> Getting committed transaction by account and sequence number");
+        match client.get_committed_txn_by_acc_seq(&params) {
+            Ok(txn_view) => {
+                match txn_view {
+                    Some(txn_view) => {
+                        println!("Committed transaction: {:#?}", txn_view);
+                    }
+                    None => println!("Transaction not available"),
+                };
+            }
+            Err(e) => report_error(
+                "Error getting committed transaction by account and sequence number",
+                e,
+            ),
         }
     }
 }
