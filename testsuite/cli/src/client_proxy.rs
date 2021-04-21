@@ -1213,6 +1213,19 @@ impl ClientProxy {
             .get_txn_by_acc_seq(account, sequence_number, fetch_events)
     }
 
+    pub fn get_committed_txn_by_acc_seq_simple(
+        &mut self,
+        space_delim_strings: &[&str],
+        count: u64,
+    ) -> Result<Option<TransactionView>> {
+        let (account, _) = self.get_account_address_from_parameter(space_delim_strings[1])?;
+        let sequence_number = count;
+        let fetch_events = false;
+
+        self.client
+            .get_txn_by_acc_seq(account, sequence_number, fetch_events)
+    }
+
     /// Get committed txn by account and sequence number
     pub fn get_committed_txn_by_range(
         &mut self,

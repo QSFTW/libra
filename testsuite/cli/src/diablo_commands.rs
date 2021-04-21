@@ -94,23 +94,28 @@ impl Command for DiabloCommandGetTxnByAccountSeq {
     }
     fn execute(&self, client: &mut ClientProxy, params: &[&str]) {
         println!(">> Getting committed transaction by account and sequence number");
-        match client.get_committed_txn_by_acc_seq(&params) {
-            Ok(txn_view) => {
-                match txn_view {
-                    Some(_txn_view) => {
-                        client.diablo.as_ref().unwrap().write("DONE".as_bytes());
-                    },
-		            None => {
-                        client.diablo.as_ref().unwrap().write("NOT_DONE".as_bytes());
-                    },
-                };
+        let mut count: u64 = 0;
+        loop{
+            match client.get_committed_txn_by_acc_seq_simple(&params, count) {
+                Ok(txn_view) => {
+                    match txn_view {
+                        Some(_txn_view) => {
+                            client.diablo.as_ref().unwrap().write("DONE".as_bytes());
+                            count = count+1;
+                        },
+                        None => {
+                            client.diablo.as_ref().unwrap().write("NOT_DONE".as_bytes());
+                        },
+                    };
+                }
+                Err(e) => report_error(
+                    "Error getting committed transaction by account and sequence number",
+                    e,
+                ),
             }
-            Err(e) => report_error(
-                "Error getting committed transaction by account and sequence number",
-                e,
-            ),
+            thread::sleep(Duration::from_millis(20));
         }
-    }
+        }
 }
 
 pub struct DiabloCommandMakeTransaction {}
